@@ -1,7 +1,9 @@
 import pygame
+import sys
 import menu
+import player
+import terrain
 from constants import *
-
 
 
 class Controller:
@@ -15,24 +17,44 @@ class Controller:
 
         self.game_started = False
 
+        self.quit_button = menu.MenuButton(display_width / 2 - 150, display_height / 2, quit_button_img, "quit")
+        self.start_button = menu.MenuButton(display_width / 2 - 150, display_height / 4, start_button_img, "start")
+
+        self.menu_table = menu.MainMenu(self.screen, self.quit_button, self.start_button)
+
+    def menu_action(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            for button in self.menu_table.buttons:
+                if button.rect_pos.collidepoint(event.pos):
+                    self.trigger(button)
+                else:
+                    pass
+
+    def trigger(self, button):
+        if button.type == "quit":
+            self.quit_pressed()
+        elif button.type == "start":
+            self.start_pressed()
+
+    def quit_pressed(self):
+        sys.exit()
+
+    def start_pressed(self):
+        self.game_started = True
+
     def draw_new_screen(self):
         self.screen.fill(WHITE)
         self.set_menu()
 
     def set_menu(self):
-        quit_button = menu.MenuButton(200, 300, quit_button_img)
-        menu_table = menu.MainMenu(self.screen, quit_button)
-        menu_table.draw()
-
-    def menu_action(self, event):
-        pass
+        self.menu_table.draw()
 
     def start_game(self):
-        pass
+        self.screen.fill(WHITE)
+        player = player.Player()
+        game_surface = terrain.Terrain()
 
+        game_loop(player, game_surface)
 
-
-
-
-
-
+    def game_loop(self, player, game_surface):
+            pass
