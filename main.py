@@ -1,20 +1,20 @@
 import pygame
 from controller import *
 from menu import *
-import constants as g
+from constants import *
 
 
 def main():
     pygame.init()
 
-    screen = pygame.display.set_mode((g.display_width, g.display_height))
+    screen = pygame.display.set_mode((display_width, display_height))
 
     pygame.display.set_caption("Cannon fight v0.01")
 
     clock = pygame.time.Clock()
 
     while True:
-        controller = Controller(pygame.time.Clock())
+        controller = Controller(screen, pygame.time.Clock())
 
         controller.set_menu()
 
@@ -24,11 +24,11 @@ def main():
                     return 0
                 else:
                     controller.menu_action(event)
-                    controller.draw_new_screen(screen)
+                    controller.draw_new_screen()
                     pygame.display.flip()
-            clock.tick(g.FPS)
+            clock.tick(FPS)
 
-        controller.start_game(screen)
+        controller.start_game()
 
 if __name__ == "__main__":
     main()
