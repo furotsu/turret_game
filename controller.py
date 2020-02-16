@@ -22,6 +22,9 @@ class Controller:
 
         self.menu_table = menu.MainMenu(self.screen, self.quit_button, self.start_button)
 
+        self.game_surface = terrain.Terrain()
+        self.player = player.Player(PLAYER_POS_X, PLAYER_POS_Y, self.screen)
+
     def menu_action(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             for button in self.menu_table.buttons:
@@ -31,9 +34,9 @@ class Controller:
                     pass
 
     def trigger(self, button):
-        if button.type == "quit":
+        if button.button_type == "quit":
             self.quit_pressed()
-        elif button.type == "start":
+        elif button.button_type == "start":
             self.start_pressed()
 
     def quit_pressed(self):
@@ -51,10 +54,18 @@ class Controller:
 
     def start_game(self):
         self.screen.fill(WHITE)
-        player = player.Player()
-        game_surface = terrain.Terrain()
+        self.game_loop()
 
-        game_loop(player, game_surface)
+    def game_loop(self):
+        self.player.draw()
 
-    def game_loop(self, player, game_surface):
-            pass
+        while True:
+            for event in pygame.event.get():
+                self.player.action(event)
+
+            self.player.update_game_elements()
+            self.player.draw_game_elements()
+
+            pygame.display.flip()
+
+            self.clock.tick(FPS)
