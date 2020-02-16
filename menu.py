@@ -13,7 +13,8 @@ class MenuButton:
 
 
 class MainMenu:
-
+    """manage all of the buttons in menu """
+    
     def __init__(self, screen, *buttons):
         self.buttons = buttons
         self.screen = screen

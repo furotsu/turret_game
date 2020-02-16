@@ -19,11 +19,14 @@ class Controller:
 
         self.quit_button = menu.MenuButton(display_width / 2 - 150, display_height / 2, quit_button_img, "quit")
         self.start_button = menu.MenuButton(display_width / 2 - 150, display_height / 4, start_button_img, "start")
+        self.leaderboard_button = menu.MenuButton(display_width / 2 - 450, display_height / 6, leaderboard_button_img, "leaderboard")
 
-        self.menu_table = menu.MainMenu(self.screen, self.quit_button, self.start_button)
+        self.menu_table = menu.MainMenu(self.screen, self.quit_button, self.start_button, self.leaderboard_button)
 
         self.game_surface = terrain.Terrain()
         self.player = player.Player(PLAYER_POS_X, PLAYER_POS_Y, self.screen)
+
+        self.army = player.AlienArmy(self.player, self.screen)
 
     def menu_action(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -38,12 +41,17 @@ class Controller:
             self.quit_pressed()
         elif button.button_type == "start":
             self.start_pressed()
+        elif button.button_type == "leaderboard":
+            self.to_leaderboard()
 
     def quit_pressed(self):
         sys.exit()
 
     def start_pressed(self):
         self.game_started = True
+
+    def to_leaderboard(self):
+        pass
 
     def draw_new_screen(self):
         self.screen.fill(WHITE)
@@ -60,11 +68,14 @@ class Controller:
         self.player.draw()
 
         while True:
+
             for event in pygame.event.get():
                 self.player.action(event)
 
             self.player.update_game_elements()
             self.player.draw_game_elements()
+
+            self.army.update_enemies()
 
             pygame.display.flip()
 
