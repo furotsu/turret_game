@@ -1,7 +1,7 @@
 import pygame
 import sys
 import math
-from random import randint
+from random import randint, choice
 from constants import *
 
 
@@ -94,7 +94,8 @@ class Missile(pygame.sprite.Sprite):
 class Enemies(pygame.sprite.Sprite):
     def __init__(self, screen, *groups):
         super(Enemies, self).__init__()
-        self.image = pygame.image.load(enemy1_img).convert_alpha()
+        self.image = choice([enemy1_img, enemy2_img])
+        self.image = pygame.image.load(self.image).convert_alpha()
         self.rect = self.image.get_rect().move((randint(500, 700), -20))
         self.screen = screen
         self.velocity_x = 0
@@ -135,7 +136,7 @@ class AlienArmy:
     def check_army_integrity(self):
         if self.time_before_new_enemy == 0:
             self.add_enemy()
-            self.time_before_new_enemy = 300
+            self.time_before_new_enemy = 100
         self.time_before_new_enemy -= 1
 
     def kill_enemy(self, pos):

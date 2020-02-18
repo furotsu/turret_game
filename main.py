@@ -18,7 +18,7 @@ def main():
 
         controller.set_menu()
 
-        while not controller.game_started:
+        while not controller.game_started:  # main menu loop
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return 0

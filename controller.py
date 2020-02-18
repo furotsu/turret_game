@@ -2,6 +2,7 @@ import pygame
 import sys
 import menu
 import player
+import leaderboard
 import terrain
 from constants import *
 
@@ -20,8 +21,11 @@ class Controller:
         self.quit_button = menu.MenuButton(display_width / 2 - 150, display_height / 2, quit_button_img, "quit")
         self.start_button = menu.MenuButton(display_width / 2 - 150, display_height / 4, start_button_img, "start")
         self.leaderboard_button = menu.MenuButton(display_width / 2 - 450, display_height / 6, leaderboard_button_img, "leaderboard")
+        self.back_button = menu.MenuButton(display_width / 4, display_height - 100, back_button_img, "back")
 
         self.menu_table = menu.MainMenu(self.screen, self.quit_button, self.start_button, self.leaderboard_button)
+        self.leaderboard_table = leaderboard.Leaderboard(leaderboard_storage, screen)
+        self.create_start_leaderboard()
 
         self.game_surface = terrain.Terrain()
         self.player = player.Player(PLAYER_POS_X, PLAYER_POS_Y, self.screen)
@@ -31,7 +35,7 @@ class Controller:
     def menu_action(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             for button in self.menu_table.buttons:
-                if button.rect_pos.collidepoint(event.pos):
+                if button.rect_pos.collidepoint(event.pos):  # trigger pressed button
                     self.trigger(button)
                 else:
                     pass
@@ -42,16 +46,40 @@ class Controller:
         elif button.button_type == "start":
             self.start_pressed()
         elif button.button_type == "leaderboard":
-            self.to_leaderboard()
+            self.leaderboard_pressed()
+            self.show_leaderboard()
 
     def quit_pressed(self):
         sys.exit()
 
     def start_pressed(self):
-        self.game_started = True
+        self.game_started = True  # make main game loop in main.py start
 
-    def to_leaderboard(self):
-        pass
+    def leaderboard_pressed(self):
+        self.leaderboard_table.closed = False
+
+    def show_leaderboard(self):
+        self.leaderboard_table.generate_text()
+        self.leaderboard_table.render_text()
+
+        while not self.leaderboard_table.closed:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+
+            self.screen.fill(WHITE)
+            self.leaderboard_table.draw()
+            self.draw_back_button()
+            pygame.display.flip()
+            self.clock.tick(FPS)
+
+    def create_start_leaderboard(self):
+        for key, item in computer_scores.items():
+            self.leaderboard_table.add_score(key, item)
+
+    def draw_back_button(self):
+        self.back_button.draw(self.screen)
+
 
     def draw_new_screen(self):
         self.screen.fill(WHITE)

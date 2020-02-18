@@ -11,6 +11,9 @@ class MenuButton:
         self.size = self.image.get_rect().size
         self.rect_pos = self.image.get_rect().move((pos_x, pos_y))
 
+    def draw(self, screen):
+        screen.blit(self.image, self.rect_pos)
+
 
 class MainMenu:
     """manage all of the buttons in menu """
