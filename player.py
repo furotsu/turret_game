@@ -10,19 +10,27 @@ class Player(pygame.sprite.Sprite):
         super(Player, self).__init__()
         self.screen = screen
         self.original_image = pygame.image.load(player_img).convert_alpha()  # we should rotate original image instead
-        self.image = self.original_image                                     # of current to keep it quality
+        self.image = self.original_image  # of current to keep it quality
         self.rect = self.image.get_rect().move((pos_x, pos_y))
+
+        self.charger = pygame.Surface((0, 60))
+        self.charger.fill(pygame.Color('sienna2'))
+        self.shot_power = 0
+
         self.current_angle = START_CANNON_ANGLE
         self.motion = STOP
         self.missile = None
         self.already_shoot = False
+        self.is_charging = False
+        self.increase_shot_power = True
 
     def draw(self):
         self.screen.blit(self.image, self.rect)
 
     def shoot(self):
         self.already_shoot = True
-        self.missile = Missile(self.current_angle, PLAYER_POS_X, PLAYER_POS_Y, self.screen)
+        self.missile = Missile(self.current_angle + 15, PLAYER_POS_X + 20, PLAYER_POS_Y + 40, self.shot_power,
+                               self.screen)
 
     def get_missile_rect(self):
         if self.already_shoot:
@@ -30,7 +38,7 @@ class Player(pygame.sprite.Sprite):
         else:
             return None
 
-    def action(self, event: object) -> object:
+    def action(self, event):
         """processing pressed button """
         if event.type == pygame.QUIT:
             sys.exit()
@@ -42,21 +50,28 @@ class Player(pygame.sprite.Sprite):
                     self.motion = DOWN
                 elif event.key == pygame.K_SPACE:
                     self.motion = STOP
-                    self.shoot()
-                    pass
+                    self.is_charging = True
             elif event.type == pygame.KEYUP:
                 if event.key in [pygame.K_UP, pygame.K_DOWN]:
                     self.motion = STOP
+                elif event.key == pygame.K_SPACE:
+                    self.is_charging = False
+                    self.shoot()
+                    self.shot_power = 0
 
     def draw_game_elements(self):
         self.screen.fill(WHITE)
         self.draw()
+        if self.is_charging:
+            self.draw_charger()
         if self.already_shoot:
             self.missile.draw()
 
     def update_game_elements(self):
         self.update_player(self.motion)
-        if self.already_shoot:
+        if self.is_charging:
+            self.update_charger()
+        elif self.already_shoot:
             self.update_missile()
 
     def update_missile(self):
@@ -67,17 +82,34 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(self.original_image, self.current_angle + angle)
         x, y, = self.rect.center
         self.current_angle += angle
-        self.rect = self.image.get_rect()  # making image rotating around ist center
+        self.rect = self.image.get_rect()  # make image rotate around its center
         self.rect.center = (x, y)  # and preventing it from moving around screen
+
+    def update_charger(self):
+        self.check_power_limits()
+        if self.increase_shot_power:
+            self.shot_power += POWER_CHARGE
+        else:
+            self.shot_power -= POWER_CHARGE
+        self.charger = pygame.transform.scale(self.charger, (self.shot_power, 60))
+
+    def check_power_limits(self):
+        if self.shot_power >= MAX_SHOT_POWER:
+            self.increase_shot_power = False
+        elif self.shot_power <= 0:
+            self.increase_shot_power = True
+
+    def draw_charger(self):
+        self.screen.blit(self.charger, (PLAYER_POS_X, PLAYER_POS_Y - 80))
 
 
 class Missile(pygame.sprite.Sprite):
-    def __init__(self, angle, pos_x, pos_y, screen):
+    def __init__(self, angle, pos_x, pos_y, shot_power, screen):
         super(Missile, self).__init__()
         self.image = pygame.image.load(missile_img).convert_alpha()
         self.screen = screen
-        self.velocity_x = SHOT_POWER * math.cos(angle * math.pi / 180)
-        self.velocity_y = -SHOT_POWER * math.sin(angle * math.pi / 180)
+        self.velocity_x = shot_power * math.cos(angle * math.pi / 180)
+        self.velocity_y = -shot_power * math.sin(angle * math.pi / 180)
         self.rect = self.image.get_rect().move((pos_x, pos_y))
 
     def update_velocity(self):
@@ -116,7 +148,7 @@ class AlienArmy:
         self.time_before_new_enemy = 3
         self.player = player
 
-    def update_enemies(self):
+    def update_enemies(self):  # move enemies and check for collide with missile
         self.check_army_integrity()
         for enemy in self.enemies:
             enemy.move()
@@ -126,9 +158,11 @@ class AlienArmy:
     def enemy_hit(self, missile, pos):
         if missile is None:
             return
+        counter = 0
         for enemy in self.enemies:
             if missile.colliderect(enemy):
-                self.kill_enemy(pos)
+                self.kill_enemy(counter)
+            counter += 1
 
     def add_enemy(self):
         self.enemies.append(Enemies(self.screen))
@@ -141,5 +175,3 @@ class AlienArmy:
 
     def kill_enemy(self, pos):
         self.enemies.pop(pos)
-
-

@@ -9,7 +9,7 @@ def main():
 
     screen = pygame.display.set_mode((display_width, display_height))
 
-    pygame.display.set_caption("Cannon fight v0.04")
+    pygame.display.set_caption("Cannon defend v0.06")
 
     clock = pygame.time.Clock()
 
