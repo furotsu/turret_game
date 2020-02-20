@@ -3,6 +3,7 @@ import sys
 import menu
 import player
 import leaderboard
+import death_screen
 import terrain
 from constants import *
 
@@ -20,12 +21,15 @@ class Controller:
 
         self.quit_button = menu.MenuButton(display_width / 2 - 150, display_height / 2, quit_button_img, "quit")
         self.start_button = menu.MenuButton(display_width / 2 - 150, display_height / 4, start_button_img, "start")
-        self.leaderboard_button = menu.MenuButton(display_width / 2 - 450, display_height / 6, leaderboard_button_img, "leaderboard")
+        self.leaderboard_button = menu.MenuButton(display_width / 2 - 450, display_height / 6, leaderboard_button_img,
+                                                  "leaderboard")
         self.back_button = menu.MenuButton(display_width / 4, display_height - 100, back_button_img, "back")
 
         self.menu_table = menu.MainMenu(self.screen, self.quit_button, self.start_button, self.leaderboard_button)
         self.leaderboard_table = leaderboard.Leaderboard(leaderboard_storage, screen)
         self.create_start_leaderboard()
+
+        self.death_screen_table = death_screen.Death_screen(screen, self.back_button)
 
         self.game_surface = terrain.Terrain()
         self.player = player.Player(PLAYER_POS_X, PLAYER_POS_Y, self.screen)
@@ -39,6 +43,10 @@ class Controller:
                     self.trigger(button)
                 else:
                     pass
+
+    def back_button_action(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and self.back_button.rect_pos.collidepoint(event.pos):
+            self.back_pressed()
 
     def trigger(self, button):
         if button.button_type == "quit":
@@ -58,6 +66,14 @@ class Controller:
     def leaderboard_pressed(self):
         self.leaderboard_table.closed = False
 
+    def back_pressed(self):
+        if not self.leaderboard_table.closed:
+            self.leaderboard_table.closed = True
+            self.leaderboard_table.renew_board()
+        elif self.game_started:
+            self.game_started = False
+            print('dfdfd')
+
     def show_leaderboard(self):
         self.leaderboard_table.generate_text()
         self.leaderboard_table.render_text()
@@ -66,6 +82,8 @@ class Controller:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
+                else:
+                    self.back_button_action(event)
 
             self.screen.fill(WHITE)
             self.leaderboard_table.draw()
@@ -80,7 +98,6 @@ class Controller:
     def draw_back_button(self):
         self.back_button.draw(self.screen)
 
-
     def draw_new_screen(self):
         self.screen.fill(WHITE)
         self.set_menu()
@@ -92,10 +109,20 @@ class Controller:
         self.screen.fill(WHITE)
         self.game_loop()
 
+    def game_over(self):
+        self.death_screen_table.draw()
+        while self.game_started:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                else:
+                    self.back_button_action(event)
+            pygame.display.flip()
+
     def game_loop(self):
         self.player.draw()
 
-        while True:
+        while self.game_started:
 
             for event in pygame.event.get():
                 self.player.action(event)
@@ -104,6 +131,9 @@ class Controller:
             self.player.draw_game_elements()
 
             self.army.update_enemies()
+
+            if self.army.defeat():
+                self.game_over()
 
             pygame.display.flip()
 

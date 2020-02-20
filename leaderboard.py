@@ -16,7 +16,6 @@ class Leaderboard:
         for score in self.rendered_text:
             self.screen.blit(score, (display_width / 4, 20 + counter))  # make indent between scores
             counter += 20
-            print(score)
 
     def generate_text(self):  # get scores by one and add it to a str list
         for player_name in self.file:
@@ -29,3 +28,7 @@ class Leaderboard:
 
     def add_score(self, player_name, score):
         self.file[player_name] = score
+
+    def renew_board(self):
+        self.text = []
+        self.rendered_text = []

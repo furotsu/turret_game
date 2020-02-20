@@ -9,12 +9,13 @@ def main():
 
     screen = pygame.display.set_mode((display_width, display_height))
 
-    pygame.display.set_caption("Cannon defend v0.06")
+    pygame.display.set_caption("Cannon defend v0.08")
 
     clock = pygame.time.Clock()
 
+    controller = Controller(screen, pygame.time.Clock())
+
     while True:
-        controller = Controller(screen, pygame.time.Clock())
 
         controller.set_menu()
 
