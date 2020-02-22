@@ -168,6 +168,7 @@ class AlienArmy:
         self.screen = screen
         self.time_before_new_enemy = 3
         self.player = player
+        self.kill_count = 0
 
     def update_enemies(self):  # move enemies and check for collide with missile
         self.check_army_integrity()
@@ -197,8 +198,12 @@ class AlienArmy:
     def check_army_integrity(self):
         if self.time_before_new_enemy == 0:
             self.add_enemy()
-            self.time_before_new_enemy = 100
+            self.time_before_new_enemy = TIME_BETWEEN_ENEMIES
         self.time_before_new_enemy -= 1
 
     def kill_enemy(self, pos):
         self.enemies.pop(pos)
+        self.kill_count += 1
+
+    def renew_kill_count(self):
+        self.kill_count = 0

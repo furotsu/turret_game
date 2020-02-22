@@ -72,7 +72,6 @@ class Controller:
             self.leaderboard_table.renew_board()
         elif self.game_started:
             self.game_started = False
-            print('dfdfd')
 
     def show_leaderboard(self):
         self.leaderboard_table.generate_text()
@@ -106,11 +105,41 @@ class Controller:
         self.menu_table.draw()
 
     def start_game(self):
+        self.player_name = self.get_player_name()
         self.screen.fill(WHITE)
         self.game_loop()
 
+    def get_player_name(self):
+        player_name = ""
+        flag = True
+        while flag:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_0:
+                        return player_name
+                    elif event.key == pygame.K_BACKSPACE:
+                        player_name = player_name[:-1]  # delete last element of name if backspace pressed
+                    elif 97 <= event.key <= 122:
+                        player_name += chr(event.key)
+                    else:
+                        pass
+                self.display_player_name(player_name)
+
+    def display_player_name(self, player_name):
+        font = pygame.font.Font('freesansbold.ttf', 16)
+        left = (display_width / 2) - 250
+        top = (display_height / 2) - 100
+        self.screen.fill(WHITE)
+        pygame.draw.rect(self.screen, YELLOW, (left, top, 320, 150))
+        self.screen.blit(font.render(player_name, True, BLACK), (left + 80, top + 70))
+        pygame.display.flip()
+
     def game_over(self):
-        self.death_screen_table.draw()
+        self.leaderboard_table.add_score(self.player_name, self.army.kill_count)
+        self.death_screen_table.draw(self.army.kill_count)
+        self.army.renew_kill_count()
         while self.game_started:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -119,6 +148,22 @@ class Controller:
                     self.back_button_action(event)
             pygame.display.flip()
 
+    def check_for_pause(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.pause_game()
+
+    def pause_game(self):
+        while True:
+            self.draw_back_button()
+            pygame.display.flip()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        return
+
     def game_loop(self):
         self.player.draw()
 
@@ -126,6 +171,7 @@ class Controller:
 
             for event in pygame.event.get():
                 self.player.action(event)
+                self.check_for_pause(event)
 
             self.player.update_game_elements()
             self.player.draw_game_elements()

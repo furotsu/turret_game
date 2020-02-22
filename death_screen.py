@@ -9,8 +9,10 @@ class Death_screen:
         self.screen = screen
         self.buttons = buttons
 
-    def draw(self):
+    def draw(self, score):
+        font = pygame.font.Font('freesansbold.ttf', 16)
         self.draw_main_block()
+        self.screen.blit(font.render("Your score is: {}".format(score), True, BLACK), (80, 70))
         for button in self.buttons:
             button.draw(self.screen)
 

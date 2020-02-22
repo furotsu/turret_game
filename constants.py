@@ -8,22 +8,26 @@ COOLDOWN_WIDTH = 50
 
 PLAYER_POS_X = 50
 PLAYER_POS_Y = 430
-START_CANNON_ANGLE = 45
+START_CANNON_ANGLE = 25
 
-ACCELERATION = -1
+ACCELERATION = -2
 MAX_SHOT_POWER = 50
 POWER_CHARGE = 5
 COOLDOWN = 40
 
 ENEMY_VELOCITY_X = 0
 ENEMY_VELOCITY_Y = 4
+TIME_BETWEEN_ENEMIES = 100
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+YELLOW = (255, 255, 51)
 
 STOP = 0
 UP = 1
 DOWN = -1
+
+FPS = 30
 
 # extracting images from their folders
 start_button_img = os.path.join("data", "start_button.png")
@@ -38,11 +42,10 @@ enemy3_img = os.path.join("data", "enemy3.png")
 
 leaderboard_storage = os.path.join("data", "leaderboard.db")
 computer_scores = dict([
-    ("Vlad", "100000"),
-    ("Misha", "5000"),
-    ("Arthur", "2500"),
-    ("Max", "2000"),
-    ("Kirrilishche", "10")
+    ("Vlad", 100000),
+    ("Misha", 5000),
+    ("Arthur", 2500),
+    ("Max", 2000),
+    ("Kirrilishche", 10)
 ])
 
-FPS = 30
