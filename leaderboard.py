@@ -34,6 +34,8 @@ class Leaderboard:
     def add_score(self, player_name, score):
         if player_name in self.file.keys() and score > self.file[player_name]:
             self.file[player_name] = score
+        elif player_name not in self.file.keys():
+            self.file[player_name] = score
 
     def renew_board(self):
         self.text = []

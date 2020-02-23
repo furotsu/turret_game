@@ -17,7 +17,7 @@ class Player(pygame.sprite.Sprite):
         self.charger.fill(pygame.Color('sienna2'))
         self.shot_power = 0
         self.cooldown = pygame.Surface((COOLDOWN_WIDTH, 0))
-        self.cooldown.fill(pygame.Color('sienna2'))
+        self.cooldown.fill(YELLOW)
         self.shot_cooldown = 0
 
         self.current_angle = START_CANNON_ANGLE
@@ -32,7 +32,7 @@ class Player(pygame.sprite.Sprite):
 
     def shoot(self):
         self.already_shoot = True
-        self.missile = Missile(self.current_angle + 15, PLAYER_POS_X + 20, PLAYER_POS_Y + 40, self.shot_power,
+        self.missile = Missile(self.current_angle + 15, MISSILE_POS_X, MISSILE_POS_Y, self.shot_power,
                                self.screen)
 
     def get_missile_rect(self):
@@ -68,6 +68,7 @@ class Player(pygame.sprite.Sprite):
         self.draw()
         if self.is_charging:
             self.draw_charger()
+            self.draw_trajectory()
         if self.shot_cooldown:
             self.draw_cooldown()
         if self.already_shoot:
@@ -116,6 +117,17 @@ class Player(pygame.sprite.Sprite):
 
     def draw_cooldown(self):
         self.screen.blit(self.cooldown, (PLAYER_POS_X + 80, PLAYER_POS_Y - 100))
+
+    def draw_trajectory(self):
+        time = 2
+        if self.shot_power != 0:
+            velocity_x = self.shot_power * math.cos((self.current_angle + 15) * math.pi / 180)
+            velocity_y = -self.shot_power * math.sin((self.current_angle + 15) * math.pi / 180)
+            while time != 20:
+                pos_x = int(MISSILE_POS_X + velocity_x * time)
+                pos_y = int(MISSILE_POS_Y + velocity_y * time - (ACCELERATION * time ** 2) / 2)
+                pygame.draw.circle(self.screen, RED, (pos_x, pos_y), 10)
+                time += 1
 
 
 class Missile(pygame.sprite.Sprite):
